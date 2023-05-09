@@ -4752,6 +4752,12 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
+    public Pokemon randomPokemon(){
+        return getPokemon().get(Species.bidoof);
+    }
+
+
+    @Override
     public void randomizeIntroPokemon() {
         try {
             if (romEntry.romType == Gen4Constants.Type_DP || romEntry.romType == Gen4Constants.Type_Plat) {

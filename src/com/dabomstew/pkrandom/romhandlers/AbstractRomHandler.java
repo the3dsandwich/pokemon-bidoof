@@ -344,6 +344,13 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
             }
         }
+
+        pokes.get(Species.bidoof).hp = 120;
+        pokes.get(Species.bidoof).attack = 120;
+        pokes.get(Species.bidoof).defense = 120;
+        pokes.get(Species.bidoof).spatk = 120;
+        pokes.get(Species.bidoof).spdef = 120;
+        pokes.get(Species.bidoof).speed = 120;
     }
 
     public Pokemon randomPokemon() {
@@ -868,7 +875,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             // Entirely random
             for (EncounterSet area : scrambledEncounters) {
                 for (Encounter enc : area.encounters) {
-                    enc.pokemon = pickEntirelyRandomPokemon(allowAltFormes, noLegendaries, area, banned);
+                    enc.pokemon = getPokemon().get(Species.bidoof);
                     setFormeForEncounter(enc, enc.pokemon);
                 }
             }
@@ -1863,56 +1870,45 @@ public abstract class AbstractRomHandler implements RomHandler {
                     bannedList.addAll(evolvesIntoTheWrongType);
                 }
 
-                Pokemon newPK = pickTrainerPokeReplacement(
-                                oldPK,
-                                usePowerLevels,
-                                typeForTrainer,
-                                noLegendaries,
-                                wgAllowed,
-                                distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index)),
-                                swapThisMegaEvo,
-                                abilitiesAreRandomized,
-                                includeFormes,
-                                banIrregularAltFormes
-                        );
+                Pokemon newPK = getPokemon().get(Species.bidoof);
 
                 // Chosen Pokemon is locked in past here
-                if (distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index))) {
-                    setPlacementHistory(newPK);
-                }
+//                if (distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index))) {
+//                    setPlacementHistory(newPK);
+//                }
                 tp.pokemon = newPK;
                 setFormeForTrainerPokemon(tp, newPK);
                 tp.abilitySlot = getRandomAbilitySlot(newPK);
                 tp.resetMoves = true;
 
-                if (!eliteFourRival) {
-                    if (eliteFourSetUniquePokemon) {
-                        List<Pokemon> actualPKList;
-                        if (willForceEvolve) {
-                            actualPKList = getFinalEvos(newPK);
-                        } else {
-                            actualPKList = new ArrayList<>();
-                            actualPKList.add(newPK);
-                        }
-                        // If the unique Pokemon will evolve, we have to set all its potential evolutions as unique
-                        for (Pokemon actualPK: actualPKList) {
-                            usedAsUniqueList.add(actualPK);
-                            if (illegalEvoChains) {
-                                setEvoChainAsIllegal(actualPK, illegalIfEvolvedList, willForceEvolve);
-                            }
-                        }
-                    }
-                    if (eliteFourTrackPokemon) {
-                        bannedFromUniqueList.add(newPK);
-                        if (illegalEvoChains) {
-                            setEvoChainAsIllegal(newPK, bannedFromUniqueList, willForceEvolve);
-                        }
-                    }
-                } else {
-                    // If the champion is a rival, the first Pokemon will be skipped - it's already
-                    // set as unique since it's a starter
-                    eliteFourRival = false;
-                }
+//                if (!eliteFourRival) {
+//                    if (eliteFourSetUniquePokemon) {
+//                        List<Pokemon> actualPKList;
+//                        if (willForceEvolve) {
+//                            actualPKList = getFinalEvos(newPK);
+//                        } else {
+//                            actualPKList = new ArrayList<>();
+//                            actualPKList.add(newPK);
+//                        }
+//                        // If the unique Pokemon will evolve, we have to set all its potential evolutions as unique
+//                        for (Pokemon actualPK: actualPKList) {
+//                            usedAsUniqueList.add(actualPK);
+//                            if (illegalEvoChains) {
+//                                setEvoChainAsIllegal(actualPK, illegalIfEvolvedList, willForceEvolve);
+//                            }
+//                        }
+//                    }
+//                    if (eliteFourTrackPokemon) {
+//                        bannedFromUniqueList.add(newPK);
+//                        if (illegalEvoChains) {
+//                            setEvoChainAsIllegal(newPK, bannedFromUniqueList, willForceEvolve);
+//                        }
+//                    }
+//                } else {
+//                    // If the champion is a rival, the first Pokemon will be skipped - it's already
+//                    // set as unique since it's a starter
+//                    eliteFourRival = false;
+//                }
 
                 if (swapThisMegaEvo) {
                     tp.heldItem = newPK
@@ -3987,9 +3983,9 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
         for (int i = 0; i < starterCount; i++) {
             Pokemon pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
-            while (pickedStarters.contains(pkmn) || banned.contains(pkmn) || pkmn.actuallyCosmetic) {
-                pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
-            }
+//            while (pickedStarters.contains(pkmn) || banned.contains(pkmn) || pkmn.actuallyCosmetic) {
+//                pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
+//            }
             pickedStarters.add(pkmn);
         }
         setStarters(pickedStarters);
@@ -4251,7 +4247,10 @@ public abstract class AbstractRomHandler implements RomHandler {
             List<Pokemon> pokemonLeft = new ArrayList<>(!allowAltFormes ? mainPokemonList : listInclFormesExclCosmetics);
             pokemonLeft.removeAll(banned);
 
-            List<Pokemon> pokemonPool = new ArrayList<>(pokemonLeft);
+            List<Pokemon> pokemonPool = List.of(getPokemon().get(Species.bidoof));
+            pokemonLeft = new ArrayList<>();
+            pokemonLeft.addAll(pokemonPool);
+            System.out.println(pokemonPool);
 
             for (StaticEncounter old : currentStaticPokemon) {
                 StaticEncounter newStatic = cloneStaticEncounter(old);
@@ -5323,7 +5322,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             // pick new given pokemon
             Pokemon oldgiven = trade.givenPokemon;
             Pokemon given = this.randomPokemon();
-            while (usedGivens.contains(given)) {
+            while (given.number!=Species.bidoof&&usedGivens.contains(given)) {
                 given = this.randomPokemon();
             }
             usedGivens.add(given);
@@ -5336,7 +5335,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             } else if (randomizeRequest) {
                 if (trade.requestedPokemon != null) {
                     Pokemon request = this.randomPokemon();
-                    while (usedRequests.contains(request) || request == given) {
+                    while (request.number!=Species.bidoof&&(usedRequests.contains(request) || request == given)) {
                         request = this.randomPokemon();
                     }
                     usedRequests.add(request);
@@ -5805,6 +5804,10 @@ public abstract class AbstractRomHandler implements RomHandler {
                     picked = replacements.get(0);
                 } else {
                     picked = replacements.get(this.random.nextInt(replacements.size()));
+                }
+
+                if(fromPK.number==Species.bidoof) {
+                    picked = getPokemon().get(Species.bidoof);
                 }
 
                 // Step 4: create new level 1 evo and add it to the new evos pool
